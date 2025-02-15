@@ -1,44 +1,31 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AuthController;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
-// 🔹 Rutas de autenticación
+// 🔹 NECESARIO PARA QUE SANCTUM FUNCIONE CON COOKIES
+Route::middleware([EnsureFrontendRequestsAreStateful::class, 'auth:sanctum'])->group(function () {
+    Route::get('/user', function (Request $request) {
+        return response()->json($request->user());
+    });
 
-Route::post('/login', [AuthController::class, 'login']);
-
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/users', [AuthController::class, 'getUsers']); // Protegida
-    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 });
 
-
+// 🔹 AUTENTICACIÓN
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/logout', [AuthController::class, 'logout']);
 
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', [UserController::class, 'user']);
-    Route::get('/dashboard', [UserController::class, 'dashboard']);
-});
-
-Route::post('/register', [AuthController::class, 'register']); 
-
-
-// 🔹 Rutas de recuperación de contraseña
+// 🔹 RECUPERACIÓN DE CONTRASEÑA
 Route::post('/forgot-password', [AuthController::class, 'sendResetCode']); 
 Route::post('/verify-code', [AuthController::class, 'verifyCode']); 
 Route::post('/reset-password', [AuthController::class, 'resetPassword']); 
 
-// 🔹 Ruta protegida con Sanctum para el Dashboard
-Route::middleware(['auth:sanctum'])->get('/dashboard', [DashboardController::class, 'index']);
-
-// 🔹 Ruta para obtener el usuario autenticado
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return response()->json([
-        'user' => $request->user(),
-    ]);
+// 🔹 RUTA PARA OBTENER EL TOKEN CSRF (NECESARIO PARA SANCTUM)
+Route::get('/sanctum/csrf-cookie', function () {
+    return response()->json(['message' => 'CSRF cookie set']);
 });
-

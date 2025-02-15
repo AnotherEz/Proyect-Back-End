@@ -15,7 +15,7 @@ use Carbon\Carbon;
 class AuthController extends Controller
 {
     /**
-     * 🔹 REGISTRO DE USUARIO (Redirige automáticamente al dashboard)
+     * 🔹 REGISTRO DE USUARIO
      */
     public function register(Request $request)
     {
@@ -35,18 +35,13 @@ class AuthController extends Controller
                 'password' => Hash::make($request->password),
             ]);
 
-            // 🔹 Autenticación automática después del registro
             Auth::login($user);
-
-            // 🔹 Generar Token de Autenticación con Sanctum
-            $token = $user->createToken('auth_token')->plainTextToken;
+            Session::regenerate(); // 🔹 Asegura una nueva sesión segura
 
             return response()->json([
                 'message' => 'Registro exitoso',
-                'token' => $token,
                 'user' => $user,
-                'redirect' => '/dashboard', // ✅ Redirige al dashboard
-            ], 201);
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Error en el registro',
@@ -55,61 +50,44 @@ class AuthController extends Controller
         }
     }
 
-
-    /**
-     * 🔹 INICIO DE SESIÓN
-     */
     public function login(Request $request)
     {
         $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
-
+    
         if (!Auth::attempt($credentials)) {
             return response()->json(['message' => 'Credenciales incorrectas'], 401);
         }
-
-        // 🔹 Ahora usamos Auth::guard('sanctum') para asegurar que el usuario está autenticado
-        $user = Auth::guard('sanctum')->user() ?? Auth::user();
-
-        if (!$user) {
-            return response()->json(['error' => 'No se encontró usuario autenticado'], 401);
-        }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
+    
+        $request->session()->regenerate(); // 🔹 Asegura que la sesión es válida
+    
         return response()->json([
             'message' => 'Inicio de sesión exitoso',
-            'token' => $token,
-            'user' => $user,
-            'redirect' => '/dashboard',
-        ], 200);
+            'user' => Auth::user(),
+        ]);
     }
-
-    /**
+       /**
      * 🔹 CERRAR SESIÓN
      */
     public function logout(Request $request)
     {
-        $user = Auth::guard('sanctum')->user() ?? Auth::user();
-
-        if ($user) {
-            $user->tokens()->delete();
-        }
-
         Auth::logout();
         Session::flush();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return response()->json(['message' => 'Sesión cerrada correctamente'], 200);
     }
+}
 
     // 🔹 RECUPERACIÓN DE CONTRASEÑA
 
     /**
      * 🔹 Enviar código de recuperación de contraseña
      */
-    public function sendResetCode(Request $request)
+     function sendResetCode(Request $request)
     {
         $request->validate(['email' => 'required|email']);
 
@@ -138,7 +116,7 @@ class AuthController extends Controller
     /**
      * 🔹 Verificar código de recuperación de contraseña
      */
-    public function verifyCode(Request $request)
+     function verifyCode(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
@@ -159,7 +137,7 @@ class AuthController extends Controller
     /**
      * 🔹 Procesar restablecimiento de contraseña
      */
-    public function resetPassword(Request $request)
+     function resetPassword(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
@@ -174,4 +152,5 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Tu contraseña ha sido restablecida con éxito.'], 200);
     }
-}
+
+
