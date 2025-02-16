@@ -61,13 +61,17 @@ class AuthController extends Controller
             return response()->json(['message' => 'Credenciales incorrectas'], 401);
         }
     
-        $request->session()->regenerate(); // 🔹 Asegura que la sesión es válida
+        $user = Auth::user();
+        
+        // Laravel maneja la sesión automáticamente con cookies
+        Session::regenerate(); // 🔹 Asegura una nueva sesión segura
     
         return response()->json([
             'message' => 'Inicio de sesión exitoso',
-            'user' => Auth::user(),
+            'user' => $user,
         ]);
     }
+    
        /**
      * 🔹 CERRAR SESIÓN
      */
