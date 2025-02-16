@@ -1,11 +1,10 @@
 <?php
 return [
-    'paths' => ['api/*', 'sanctum/csrf-cookie'], // Habilita CORS en API y Sanctum
-    'allowed_methods' => ['*'], // Permite todos los métodos (GET, POST, etc.)
-    'allowed_origins' => ['http://localhost:5173', 'http://127.0.0.1:5173'],
-    'allowed_origins_patterns' => [],
-    'allowed_headers' => ['*'], // Permite todos los headers
-    'exposed_headers' => [],
-    'supports_credentials' => true, // Importante para enviar cookies desde el frontend
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'allowed_methods' => ['*'],
+    'allowed_origins' => ['http://localhost:5173'],  // 🔥 IMPORTANTE: Debe coincidir con el frontend
+    'allowed_headers' => ['Content-Type', 'X-Requested-With', 'Authorization'],
+    'exposed_headers' => ['Set-Cookie'],  // 🔥 Esto permite ver la cookie en el navegador
+    'max_age' => 0,
+    'supports_credentials' => true,  // 🔥 OBLIGATORIO PARA QUE LAS COOKIES FUNCIONEN
 ];
-

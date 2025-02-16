@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request; // ✅ Asegurar que Request está importado
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
+    /**
+     * 🔹 OBTENER USUARIO AUTENTICADO Y DATOS DEL DASHBOARD
+     */
     public function index(Request $request)
     {
-        $user = Auth::guard('web')->user(); // 🔹 Usa el guard "web" para sesiones
+        // ✅ Intenta obtener el usuario desde la sesión de Sanctum
+        $user = Auth::guard('web')->user() ?? $request->user();
 
         if (!$user) {
             return response()->json(['message' => 'No autorizado'], 401);

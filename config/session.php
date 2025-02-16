@@ -1,11 +1,12 @@
 <?php
-
 return [
-    'driver' => env('SESSION_DRIVER', 'cookie'), // ✅ DEBE ser 'cookie'
-    'lifetime' => 120, // ✅ Duración en minutos
+    'driver' => env('SESSION_DRIVER', 'database'),
+    'lifetime' => env('SESSION_LIFETIME', 120),
     'expire_on_close' => false,
     'encrypt' => false,
     'http_only' => true,
-    'secure' => env('SESSION_SECURE_COOKIE', false), // ✅ false en desarrollo
-    'same_site' => 'lax', // ✅ Permite compartir cookies entre frontend y backend
+    'same_site' => 'none',   // 🔥 Permite compartir cookies entre backend y frontend
+    'secure' => false,       // 🔥 Debe ser `false` en desarrollo
+    'domain' => env('SESSION_DOMAIN', '127.0.0.1'),
+    'path' => '/',
 ];

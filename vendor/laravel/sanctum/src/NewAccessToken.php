@@ -1,6 +1,6 @@
 <?php
 
-namespace Laravel\Sanctum;
+namespace Laravel\Sanctum ;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;

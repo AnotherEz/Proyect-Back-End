@@ -12,22 +12,22 @@ Route::get('/sanctum/csrf-cookie', function () {
 });
 
 // 🔹 AUTENTICACIÓN
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout']);
 
-// 🔹 RECUPERACIÓN DE CONTRASEÑA
 Route::post('/forgot-password', [AuthController::class, 'sendResetCode']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
-// 🔹 RUTAS PROTEGIDAS CON SANCTUM Y COOKIES
-Route::middleware([EnsureFrontendRequestsAreStateful::class, 'auth:sanctum'])->group(function () {
-    // ✅ OBTENER USUARIO AUTENTICADO
+// 🔹 RUTAS PROTEGIDAS POR SANCTUM
+Route::middleware([
+    EnsureFrontendRequestsAreStateful::class, // ✅ Permite manejar sesiones con cookies
+    'auth:sanctum',
+])->group(function () {
     Route::get('/user', function (Request $request) {
         return response()->json($request->user());
     });
 
-    // ✅ DASHBOARD PROTEGIDO
     Route::get('/dashboard', [DashboardController::class, 'index']);
 });
